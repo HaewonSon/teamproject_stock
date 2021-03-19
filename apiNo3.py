@@ -1,5 +1,5 @@
 import win32com.client
-
+# 주식 일자별 데이터 조회
 
 def ReqeustData(obj):
     # 데이터 요청
