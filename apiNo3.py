@@ -48,7 +48,7 @@ if ret == False:
 NextCount = 1
 while objStockWeek.Continue:  # 연속 조회처리
     NextCount += 1;
-    if (NextCount > 5):
+    if (NextCount > 10000000):
         break
     ret = ReqeustData(objStockWeek)
     if ret == False:
