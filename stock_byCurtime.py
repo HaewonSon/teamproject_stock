@@ -12,19 +12,38 @@ class CpEvent:
         self.client = client
 
     def OnReceived(self):
-        code = self.client.GetHeaderValue(0)  # 초
-        name = self.client.GetHeaderValue(1)  # 초
-        timess = self.client.GetHeaderValue(18)  # 초
-        exFlag = self.client.GetHeaderValue(19)  # 예상체결 플래그
-        cprice = self.client.GetHeaderValue(13)  # 현재가
-        diff = self.client.GetHeaderValue(2)  # 대비
-        cVol = self.client.GetHeaderValue(17)  # 순간체결수량
-        vol = self.client.GetHeaderValue(9)  # 거래량
+        code = self.client.GetHeaderValue(0)  # 코드
+        name = self.client.GetHeaderValue(1)  # 종목명
+        diff = self.client.GetHeaderValue(2)  # 전일대비
+        cur_price = self.client.GetHeaderValue(4)  # 시가
+        high_price = self.client.GetHeaderValue(5)  # 고가
+        low_price = self.client.GetHeaderValue(6)  # 저가
+        sell_call = self.client.GetHeaderValue(7)  # 매도호가
+        buy_call = self.client.GetHeaderValue(8)  # 매수호가
+        acc_vol = self.client.GetHeaderValue(9)  # 누적거래량
+        pred_price = self.client.GetHeaderValue(13)  # 현재가 또는 예상체결가
+        deal_state = self.client.GetHeaderValue(14)  # 체결상태(체결가 방식)
+        acc_sell_deal_vol = self.client.GetHeaderValue(15)  # 누적매도체결수량(체결가방식)
+        acc_buy_deal_vol = self.client.GetHeaderValue(16)  # 누적매수체결수량(체결가방식)
+        moment_deal_vol = self.client.GetHeaderValue(17)  # 순간체결수량
+        timess1 = time.strftime('%Y%m%d')
+        date_time_sec = timess1 + str(self.client.GetHeaderValue(18))  # 시간(초)
+        exFlag = self.client.GetHeaderValue(19)  # 예상체결가구분플래그
+        market_diff_flag = self.client.GetHeaderValue(20)  # 장구분플래그
 
-        if (exFlag == ord('1')):  # 동시호가 시간 (예상체결)
-            print("실시간(예상체결)", name, timess, "*", cprice, "대비", diff, "체결량", cVol, "거래량", vol)
-        elif (exFlag == ord('2')):  # 장중(체결)
-            print("실시간(장중 체결)", name, timess, cprice, "대비", diff, "체결량", cVol, "거래량", vol)
+        conn = sqlite3.connect("stock(cur).db", isolation_level=None)
+        c = conn.cursor()
+
+        c.execute("CREATE TABLE IF NOT EXISTS " + code +
+                  " (diff real, cur_price integer, high_price integer, low_price integer"
+                  ", sell_call integer, buy_call integer, acc_vol integer, pred_price integer, deal_state text, acc_sell_deal_vol integer"
+                  ", acc_buy_deal_vol integer , moment_deal_vol integer ,date_time_sec text, exFlag text, market_diff_flag text )")
+        # sql문 실행 - 테이블 생성
+        c.execute(
+            "INSERT OR IGNORE INTO " + code + " VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ((diff, cur_price, high_price, low_price, sell_call, buy_call, acc_vol, pred_price, deal_state,
+              acc_sell_deal_vol, acc_buy_deal_vol, moment_deal_vol, date_time_sec, exFlag, market_diff_flag)))
+
 
 
 class CpStockCur:
