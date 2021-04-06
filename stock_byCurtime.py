@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtWidgets import *
 import win32com.client
 import sqlite3
-
+import time
 
 # 복수 종목 실시간 조회 샘플 (조회는 없고 실시간만 있음)
 class CpEvent:
@@ -44,6 +44,7 @@ class CpEvent:
             ((diff, cur_price, high_price, low_price, sell_call, buy_call, acc_vol, pred_price, deal_state,
               acc_sell_deal_vol, acc_buy_deal_vol, moment_deal_vol, date_time_sec, exFlag, market_diff_flag)))
 
+        print(name,code,cur_price,diff)
 
 
 class CpStockCur:
@@ -88,8 +89,8 @@ class CpMarketEye:
 
         num = 0
         for num in codes:
-            c.execute("CREATE TABLE IF NOT EXISTS " + num +
-                  "rpCode integer, rpName varchar, rpTime integer, rpDiffFlag varchar, rpDiff integer, rpCur integer, rpVol integer")
+            # c.execute("CREATE TABLE IF NOT EXISTS " + num +
+            #       "rpCode integer, rpName varchar, rpTime integer, rpDiffFlag varchar, rpDiff integer, rpCur integer, rpVol integer")
 
         # sql문 실행 - 테이블 생성
         # 일자별 정보 데이터 처리
@@ -105,8 +106,8 @@ class CpMarketEye:
                 rpVol = objRq.GetDataValue(6, i)  # 거래량
                 print(rpCode, rpName, rpTime, rpDiffFlag, rpDiff, rpCur, rpVol)
 
-                c.execute("INSERT OR IGNORE INTO " + num + " VALUES( ?, ?, ?, ?, ?, ?, ?)",
-                          ((rpCode, rpName, rpTime, rpDiffFlag, rpDiff, rpCur, rpVol)))
+                # c.execute("INSERT OR IGNORE INTO " + num + " VALUES( ?, ?, ?, ?, ?, ?, ?)",
+                #           ((rpCode, rpName, rpTime, rpDiffFlag, rpDiff, rpCur, rpVol)))
 
             return True
 
@@ -146,21 +147,22 @@ class MyWindow(QMainWindow):
         self.StopSubscribe();
 
         # 요청 종목 배열
-        codes = ["A003540", "A000660", "A005930", "A035420", "A069500", "Q530031"]
+        codes = ['A004990','A007310','A004370','A006040','A001800'] # 기업종목코드
         # 요청 필드 배열 - 종목코드, 시간, 대비부호 대비, 현재가, 거래량, 종목명
-        rqField = [0, 1, 2, 3, 4, 10, 17]  # 요청 필드
+        rqField = [0, 1, 2, 4, 5, 6, 7, 8, 9, 13, 14, 15, 16, 17, 18, 19, 20]  # 요청 필드
         objMarkeyeye = CpMarketEye()
-        if (objMarkeyeye.Request(codes, rqField) == False):
-            exit()
+        for code in codes:
+            if (objMarkeyeye.Request(code, rqField) == False):
+                exit()
 
         cnt = len(codes)
         for i in range(cnt):
             self.objCur.append(CpStockCur())
             self.objCur[i].Subscribe(codes[i])
 
-        print("빼기빼기================-")
-        print(cnt, "종목 실시간 현재가 요청 시작")
-        self.isSB = True
+            print("빼기빼기================-")
+            print(cnt, "종목 실시간 현재가 요청 시작")
+            self.isSB = True
 
     def btnStop_clicked(self):
         self.StopSubscribe()
