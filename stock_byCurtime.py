@@ -1,5 +1,7 @@
 # 주식 실시간 데이터를 조회하여 DB에 저장하는 코드
 
+# 네이버 증권 크롤링으로 수집한 상위 5개 기업 종목코드를 적용한다.
+
 import sys
 from PyQt5.QtWidgets import *
 import win32com.client
