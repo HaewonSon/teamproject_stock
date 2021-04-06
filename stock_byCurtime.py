@@ -6,7 +6,6 @@ import win32com.client
 import sqlite3
 import time
 
-# 복수 종목 실시간 조회 샘플 (조회는 없고 실시간만 있음)
 class CpEvent:
     def set_params(self, client):
         self.client = client
